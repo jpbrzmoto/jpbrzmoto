@@ -1,0 +1,17 @@
+.querysplitter {
+  
+}
+
+ .splitterdivisor{
+    vertical-align: top;
+    height: 100%;
+    overflow: auto;
+    display: block;
+
+ }
+.notoverflow{overflow: hidden;}
+ .p-splitter .p-splitter-gutter .p-splitter-gutter-handle{
+   background-color:#919191;   
+   width: 60px;
+
+ }
