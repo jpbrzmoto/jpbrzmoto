@@ -1,6 +1,5 @@
 import { createSlice } from "@reduxjs/toolkit";
 
-//const initialState = "GitHub.json";
 const initialState = {
     theme: "GitHub.json"
 }

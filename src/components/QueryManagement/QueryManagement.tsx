@@ -31,7 +31,6 @@ const QueryManagement: React.FC<QueryManagementProps> = React.memo((index) => {
 	};
 
 
-
 	return (
 		<>
 			<Box sx={{ width: '80%', bgcolor: 'background.paper', marginTop: '-40px', marginBottom: '0px', display: 'inline-flex' }}>
@@ -54,14 +53,6 @@ const QueryManagement: React.FC<QueryManagementProps> = React.memo((index) => {
 				</Tabs>
 			</Box >
 			<TabQueryState></TabQueryState>
-			{
-				//Array.from({ length: tab }).map((_, index) => (
-				//<TabQueryState index={index}></TabQueryState>
-				//))
-			}
-
-
-
 		</>
 	);
 });

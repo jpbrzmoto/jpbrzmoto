@@ -1,47 +1,60 @@
-"use client";
-import React from 'react';
-import './QueryControls.scss';
-import { InputText } from 'primereact/inputtext';
-import { Avatar } from 'primereact/avatar';
+import React, { useState } from 'react';
 import { Menubar } from 'primereact/menubar';
-import { Badge } from 'primereact/badge';
 import { Button } from 'primereact/button';
+import { Sidebar } from 'primereact/sidebar';
+import { CatalogSelector } from '../CatalogSelector';
+import { IconButton } from '@mui/material';
+import './QueryControls.scss';
 
 export type QueryControlsProps = {
 	// types...
 }
 
 const QueryControls: React.FC<QueryControlsProps> = ({ }) => {
-	const itemRenderer = (item) => (
-		<a className="flex ">
-			<span className={item.icon} />
-			<span className="mx-0">{item.label}</span>
-			{item.badge && <Badge className="ml-auto" value={item.badge} />}
-		</a>
-	);
-	const items = [
-		{
-			label: 'DataSource',
-			icon: 'pi pi-home'
-		},
-		{
-			label: 'Execute',
-			icon: 'pi pi-star'
-		}
-	];
+	const [catalogsVisible, setCatalogsVisible] = useState(false);
+	const [favorite, setFavorite] = useState(false);
+	const handleFavorite = () => {
+		setFavorite(!favorite);
+	};
+	const saveQuery = () => {
+		alert("guardado");
+	};
+
 	const start = (
-		<div className="card flex flex-wrap justify-content-center gap-3">
-			<Button type="button" className='p-1 m-2' label="Tenants" icon="pi pi-database" outlined badge="0" badgeClassName="p-badge-danger" size="small" />
-			<Button type="button" className='p-1 m-2' label="Execute" icon="pi pi-caret-right" size="small" />
-		</div>
+		<>
+			<Button type="button" className='p-2 m-2' label="Tenants" icon="pi pi-database"
+				outlined badge="0" badgeClassName="p-badge-danger" size="small"
+				onClick={() => setCatalogsVisible(true)} />
+			<Button type="button" className='p-2 m-2' label="Execute" icon="pi pi-caret-right" size="small" />
+		</>
 	);
+
 	const end = (
 		<div className="flex align-items-center gap-2">
-
+			<IconButton color="primary" onClick={handleFavorite} title="Add/Drop to Favorite Query " >
+				<span className={favorite ? "pi pi-star-fill" : "pi pi-star"} style={{ fontSize: '1.5rem', marginRight: '0' }}></span>
+			</IconButton>
+			<IconButton color="primary" onClick={saveQuery} title="save Query " >
+				<span className={"pi pi-save"} style={{ fontSize: '1.5rem', marginRight: '0' }}></span>
+			</IconButton>
 		</div>);
 
+
 	return (
-		<Menubar className='p-1' start={start} />
+		<>
+			<div className="card flex justify-content-center">
+				<Sidebar visible={catalogsVisible}
+					onHide={() => setCatalogsVisible(false)}
+					content={
+						<CatalogSelector></CatalogSelector>
+					}
+				>
+
+				</Sidebar>
+			</div>
+
+			<Menubar className='p-1' start={start} end={end} />
+		</>
 	);
 };
 

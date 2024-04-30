@@ -3,7 +3,8 @@ import { createSlice } from "@reduxjs/toolkit";
 export const initialState = {
     previousIndex: 0,
     selectedIndex: 0,
-    queryList: ["-- sql query -- \n"]
+    queryList: ["-- sql query -- \n"],
+    selectedDataSource: [{ name: "RH001", state: "enable", datasource: "MRH001" }]
 }
 
 export const querySlice = createSlice(
@@ -19,9 +20,13 @@ export const querySlice = createSlice(
                 const { index } = action.payload;
                 state.previousIndex = (state.selectedIndex === 0) ? 0 : state.selectedIndex;
                 state.selectedIndex = index;
+            },
+            setSelectedDataSource: (state, action) => {
+                const { index, dataSource } = action.payload;
+                state.selectedDataSource[index] = dataSource;
             }
         }
     }
 );
-export const { setQuery, setSelectedIndex } = querySlice.actions;
+export const { setQuery, setSelectedIndex, setSelectedDataSource } = querySlice.actions;
 export default querySlice.reducer;

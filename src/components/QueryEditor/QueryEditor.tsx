@@ -26,8 +26,6 @@ const QueryEditor = () => {
 
 	useEffect(() => {
 		setEditorValue(queryList[selectedIndex]);
-		console.log("previo..", previousIndex);
-		console.log("editorValue", editorValue);
 		dispatch(setQuery({ index: previousIndex, query: editorValue }));
 	}, [selectedIndex]);
 
@@ -69,6 +67,7 @@ const QueryEditor = () => {
 
 	return (
 		<Editor
+			className='overflow-auto'
 			height="100%"
 			defaultLanguage="sql"
 			defaultValue={editorValue}

@@ -15,17 +15,18 @@ const TabQueryState: React.FC<QuerySplitterProps> = () => {
 
 
 	return (
+		<>
 
-		<Splitter style={{ height: 'calc(100vh - 150px)', overflow: "auto" }} layout="vertical"  >
-			<SplitterPanel className="splitterdivisor notoverflow align-items-top justify-content-left" size={30} minSize={5}>
-				<QueryControls></QueryControls>
-				<QueryEditor></QueryEditor>
-			</SplitterPanel>
-			<SplitterPanel className="splitterdivisor align-items-top justify-content-center" size={70} minSize={20}>
-				<QueryListResult></QueryListResult>
-			</SplitterPanel>
-		</Splitter>
-
+			<Splitter style={{ height: 'calc(100vh - 150px)', overflow: "auto" }} layout="vertical"  >
+				<SplitterPanel className="splitterdivisor notoverflow align-items-top justify-content-left" size={30} minSize={5}>
+					<QueryControls></QueryControls>
+					<QueryEditor></QueryEditor>
+				</SplitterPanel>
+				<SplitterPanel className="splitterdivisor align-items-top justify-content-center" size={70} minSize={20}>
+					<QueryListResult></QueryListResult>
+				</SplitterPanel>
+			</Splitter>
+		</>
 	);
 };
 
