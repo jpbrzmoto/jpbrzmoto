@@ -43,7 +43,9 @@ const QueryControls: React.FC<QueryControlsProps> = ({ }) => {
 	return (
 		<>
 			<div className="card flex justify-content-center">
-				<Sidebar visible={catalogsVisible}
+				<Sidebar
+					className='w-full md:w-20rem lg:w-30rem'
+					visible={catalogsVisible}
 					onHide={() => setCatalogsVisible(false)}
 					content={
 						<CatalogSelector></CatalogSelector>

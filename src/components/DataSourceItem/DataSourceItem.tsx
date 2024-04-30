@@ -149,6 +149,7 @@ const DataSourceItem: React.FC<DataSourceItemProps> = ({ }) => {
 				onExpand={loadOnExpand}
 				selectionKeys={selectedKeys}
 				onSelectionChange={(e) => setSelectedKeys(e.value)}
+				filter filterMode="lenient"
 			/>
 			{/*<Tree value={nodes} selectionMode="checkbox" className="w-full"
 				loading={loading}
