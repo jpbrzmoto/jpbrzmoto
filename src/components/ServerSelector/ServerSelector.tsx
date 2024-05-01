@@ -11,13 +11,9 @@ const servers: Server[] = [
 ];
 
 export default function ServerSelector({ selectButtonPressed }) {
-
-	//const dataSourceList = useSelector((state) => state.datasource?.selectedDataSources);
 	const selectedTab = useSelector((state) => state.datasource.selectedTab);
 	const dataSourceList = useSelector((state) => state.datasource?.selectedDataSources[selectedTab]);
-	//const dataSourceList = useSelector((state) => state.datasource?.selectedDataSources[state.datasource.selectedTab]);
 	const [selectedServers, setSelectedServers] = useState<Server[] | null>(dataSourceList);
-
 	const dispatch = useDispatch();
 
 	useEffect(() => {

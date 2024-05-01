@@ -1,14 +1,23 @@
 .datasourceitem {
-  
+ 
 }
 
-.custom-ptree {
+.custom-ptree{
+    border:0;
+}
+.custom-ptree div{    
     padding: 0;
-    border: 0;
+    
 }
 
-.item-db{        
+.item-db,.leaf-db, .p-treenode-leaf{        
     margin: 0;
-    padding: 0;
-    border: 1px solid #ccc;
+    padding: 0;            
 }
+
+.leaf-db {     
+    color: #4c77bd;
+    cursor: pointer;
+    
+}   
+
