@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import './QueryManagement.scss';
 import { TabQueryState } from '../TabQueryState';
 
@@ -7,6 +7,7 @@ import { Box, IconButton, Tab, Tabs } from '@mui/material';
 import { AddCircleOutline } from '@mui/icons-material';
 import { useDispatch } from 'react-redux';
 import { setQuery, setSelectedIndex } from '../../redux/querySlice';
+import { setSelectedTab } from '../../redux/dataSourceSlice';
 
 
 export type QueryManagementProps = {
@@ -29,6 +30,10 @@ const QueryManagement: React.FC<QueryManagementProps> = React.memo((index) => {
 		dispatch(setQuery({ index: tab, query: "-- sql query  -- \n" }));
 		dispatch(setSelectedIndex({ index: tab }));
 	};
+
+	useEffect(() => {
+		dispatch(setSelectedTab(value));
+	}, [value]);
 
 
 	return (

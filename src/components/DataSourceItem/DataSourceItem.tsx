@@ -2,35 +2,34 @@
 import React, { useEffect, useRef, useState } from 'react';
 
 import './DataSourceItem.scss';
-import { Checkbox, FormControlLabel, List, ListItem } from '@mui/material';
-import { StyleClass } from "primereact/StyleClass";
-import { Ripple } from 'primereact/Ripple';
 import { TreeNode } from 'primereact/treenode';
-import { NodeService } from '../../services/tenant.service';
 import { Tree } from 'primereact/tree';
-import { isAction } from '@reduxjs/toolkit';
 import { ContextMenu } from 'primereact/contextmenu';
+import { getDataBases, getProgrammability, getTables, getViews } from '../../services/api.services';
+import { Checkbox } from "primereact/checkbox";
+
 export type DataSourceItemProps = {
-	// types...
+	dataSource: string
 }
 
-/*const _connectionStrings = [
-	{ name: "ITRAARHPDBE001", value: "Server=tcp:ITRAARHPDBE001.Vlatamdev.azure;Initial Catalog=MetaDB;Persist Security Info=False;User ID=rhproadmin;Password=rL[PO2Ua74Pg7Y%;MultipleActiveResultSets=False;Connection Timeout=30;" },
-	{ name: "IDRAARHPDBE001", value: "Server=tcp:IDRAARHPDBE001.Vlatamdev.azure;Persist Security Info=False;User ID=rhproadmin;Password=rhpro#2018ADMIN;TrustServerCertificate=False;Connection Timeout=30;" },
-	{ name: "IDRAARHPDB004", value: "Server=tcp:IDRAARHPDB004.Vlatamdev.azure;Persist Security Info=False;User ID=rhproadmin;Password=rhpro#2018ADMIN;TrustServerCertificate=False;Connection Timeout=30;" }
-];*/
-const DataSourceItem: React.FC<DataSourceItemProps> = ({ }) => {
-	const [catalogList, setData] = useState([{ name: "xxxx", state: "xxx", datasource: "xxx" }]);
+const DataSourceItem: React.FC<DataSourceItemProps> = ({ dataSource }) => {
 	const cm = useRef(null);
 	const [loading, setLoading] = useState<boolean>(false);
-	const [expandedKeys, setExpandedKeys] = useState({});
-	const [selectedNodeKey, setSelectedNodeKey] = useState(null);
-	//const btnRef1 = useRef<any>(null);
 	const [nodes, setNodes] = useState<TreeNode[]>([]);
 	const [selectedKeys, setSelectedKeys] = useState(null);
+	const [level, setLevel] = useState(0);
 
 	useEffect(() => {
-		NodeService.getTreeNodes().then((data) => { setNodes(data); });
+		const firstNode = [
+			{
+				key: '0',
+				label: dataSource,
+				data: 'Documents Folder',
+				icon: 'pi pi-fw pi-inbox',
+				leaf: false
+			}
+		];
+		setNodes(firstNode);
 	}, []);
 
 
@@ -56,38 +55,46 @@ const DataSourceItem: React.FC<DataSourceItemProps> = ({ }) => {
 		}
 	];
 
-	const loadOnExpand = (event) => {
-		console.log("NODE", event.node);
-		console.log("event.node.children", !event.node.children);
+	const loadOnExpand = async (event) => {
+
 		if (!event.node.children && !event.node.leaf && !event.node.isAction) {
+			setLevel(level + 1);
 			setLoading(true);
-			setTimeout(() => {
-				event.node.children = [
-					{ key: event.node.key + '-0', label: 'Tables', icon: 'pi pi-fw pi-cog', data: 'Tables', leaf: false, isAction: true },
-					{ key: event.node.key + '-1', label: 'Views', icon: 'pi pi-fw pi-cog', data: 'Views', leaf: false, isAction: true },
-					{ key: event.node.key + '-2', label: 'Programmability', icon: 'pi pi-fw pi-cog', data: 'Programmability', leaf: false, isAction: true }
-				];
+			const allDevDataBases = await getDataBases(dataSource);
+			const newChildren = allDevDataBases.map(database => ({
+				key: `${database.name}`,
+				label: database.name,
+				icon: 'pi pi-fw pi-cog',
+				data: database.name,
+				leaf: false,
+				isAction: true,
+				type: "DataBase",
+				level: level,
+				nodeTemplate: nodeTemplate
+			}));
 
-				const value = [...nodes];
-				value[0].children?.map(e => {
-					if (e.key === event.node.key) {
-						e.children = event.node.children;
-					}
-				});
+			event.node.children = [...(event.node.children || []), ...newChildren];
+			const value = [...nodes];
+			value[0].children?.map(e => {
+				if (e.key === event.node.key) {
+					e.children = event.node.children;
+				}
+			});
 
-				setNodes(value);
-				setLoading(false);
-			}, 200);
+			setNodes(value);
+			setLoading(false);
+
 		} else {
 			if (event.node.isAction && !event.node.leaf) {
-				switch (event.node.label) {
-					case "Tables": {
+				switch (event.node.type) {
+					case "DataBase": {
+						setLevel(level + 1);
 						setLoading(true);
 						setTimeout(() => {
 							event.node.children = [
-								{ checkbox: false, key: event.node.key + '-0', label: 'empleado', icon: 'pi pi-fw pi-table', data: '<span>empleado</span>', leaf: true, isAction: true },
-								{ checkbox: false, key: event.node.key + '-1', label: 'reportes', icon: 'pi pi-fw pi-table', data: 'reportes', leaf: true, isAction: true },
-								{ checkbox: false, key: event.node.key + '-2', label: 'user_per', icon: 'pi pi-fw pi-table', data: 'user_per', leaf: true, isAction: true }
+								{ key: event.node.key + '#0', label: 'Tables', icon: 'pi pi-fw pi-cog', data: 'Tables', leaf: false, isAction: true, type: "Tables", level: level },
+								{ key: event.node.key + '#1', label: 'Views', icon: 'pi pi-fw pi-cog', data: 'Views', leaf: false, isAction: true, type: "Views", level: level },
+								{ key: event.node.key + '#2', label: 'Programmability', icon: 'pi pi-fw pi-cog', data: 'Programmability', leaf: false, isAction: true, type: "Programmability", level: level }
 							];
 
 							const value = [...nodes];
@@ -100,31 +107,97 @@ const DataSourceItem: React.FC<DataSourceItemProps> = ({ }) => {
 							setNodes(value);
 							setLoading(false);
 						}, 200);
+						break;
+					}
+					case "Tables": {
+						setLoading(true);
+						setLevel(level + 1);
+						const catalog = event.node.key.split('#')[0].trim();
+						const allElements = await getTables(dataSource, catalog);
+						const newChildren = allElements.map(table => ({
+							key: `${table.name}`,
+							label: table.name,
+							data: table.name,
+							leaf: true,
+							isAction: true,
+							type: "Table",
+							classNames: "item-db",
+							level: level
+						}));
+
+						event.node.children = [...(event.node.children || []), ...newChildren];
+
+						const value = [...nodes];
+						value[0].children?.map(e => {
+							if (e.key === event.node.key) {
+								e.children = event.node.children;
+							}
+						});
+
+						setNodes(value);
+						setLoading(false);
+
 						break;
 					}
 					case "Views": {
 						setLoading(true);
-						setTimeout(() => {
-							event.node.children = [
-								{ checkbox: false, key: event.node.key + '-0', label: 'v_empleado', icon: 'pi pi-fw pi-eye', data: 'v_empleado', leaf: true, isAction: true },
-								{ checkbox: false, key: event.node.key + '-1', label: 'v_reportes', icon: 'pi pi-fw pi-eye', data: 'v_reportes', leaf: true, isAction: true },
-								{ checkbox: false, key: event.node.key + '-2', label: 'v_users', icon: 'pi pi-fw pi-eye', data: 'v_users', leaf: true, isAction: true }
-							];
+						setLevel(level + 1);
+						const catalog = event.node.key.split('#')[0].trim();
+						const allElements = await getViews(dataSource, catalog);
+						const newChildren = allElements.map(view => ({
+							key: `${view.name}`,
+							label: view.name,
+							data: view.name,
+							leaf: true,
+							isAction: true,
+							type: "View",
+							classNames: "item-db",
+							level: level
+						}));
 
-							const value = [...nodes];
-							value[0].children?.map(e => {
-								if (e.key === event.node.key) {
-									e.children = event.node.children;
-								}
-							});
+						event.node.children = [...(event.node.children || []), ...newChildren];
 
-							setNodes(value);
-							setLoading(false);
-						}, 200);
+						const value = [...nodes];
+						value[0].children?.map(e => {
+							if (e.key === event.node.key) {
+								e.children = event.node.children;
+							}
+						});
+
+						setNodes(value);
+						setLoading(false);
+
 						break;
 					}
 					case "Programmability": {
-						console.log("Programmability >>>>>>>>> ");
+						setLoading(true);
+						setLevel(level + 1);
+						const catalog = event.node.key.split('#')[0].trim();
+						const allElements = await getProgrammability(dataSource, catalog);
+						console.log(catalog);
+						const newChildren = allElements.map(p => ({
+							key: `${p.name}`,
+							label: p.name,
+							data: p.name,
+							leaf: true,
+							isAction: true,
+							type: "Proc",
+							classNames: "item-db",
+							level: level
+						}));
+
+						event.node.children = [...(event.node.children || []), ...newChildren];
+
+						const value = [...nodes];
+						value[0].children?.map(e => {
+							if (e.key === event.node.key) {
+								e.children = event.node.children;
+							}
+						});
+
+						setNodes(value);
+						setLoading(false);
+
 						break;
 					}
 					default: {
@@ -136,63 +209,36 @@ const DataSourceItem: React.FC<DataSourceItemProps> = ({ }) => {
 		}
 	}
 
+	const setChecked = (e) => {
+		console.log(e.value);
+	}
+
+	const nodeTemplate = (node) => {
+		if (node.level === 0) {
+			return (
+				<div className='item-db'>
+					{/*checked={selectedCategories.some((item) => item.key === category.key)} */}
+					<Checkbox onChange={e => setChecked(e)} value={node.label} checked={false} ></Checkbox>
+					<label htmlFor="ingredient1" className="ml-2">{node.label}</label>
+				</div>
+			);
+		} else {
+			return <div className='item-db'>{node.label}</div>;
+		}
+	};
+
 	return (
 		<>
-
-			{/*<Tree value={nodes} className="w-full"
-				loading={loading}
-				onExpand={loadOnExpand}
-			/>*/}
 			<ContextMenu model={menu} ref={cm} />
-			<Tree value={nodes} selectionMode="checkbox" className="w-full"
+			<Tree
+				nodeTemplate={nodeTemplate}
+				value={nodes}
+				className="w-full p-0 custom-ptree"
 				loading={loading}
 				onExpand={loadOnExpand}
 				selectionKeys={selectedKeys}
 				onSelectionChange={(e) => setSelectedKeys(e.value)}
-				filter filterMode="lenient"
 			/>
-			{/*<Tree value={nodes} selectionMode="checkbox" className="w-full"
-				loading={loading}
-				onExpand={loadOnExpand}
-				selectionKeys={selectedKeys}
-				onSelectionChange={(e) => setSelectedKeys(e.value)}
-		/>*/}
-
-			{/*<StyleClass nodeRef={btnRef1}
-				selector="@next"
-				enterClassName="hidden"
-				leaveToClassName="hidden"
-				enterActiveClassName="slidedown"
-				leaveActiveClassName="slideup">
-				<div ref={btnRef1} className="p-ripple p-3 flex align-items-center justify-content-between text-600 cursor-pointer">
-					<i className='pi pi-server' style={{ fontSize: '1.5rem' }}></i>
-					<span className="font-medium">{"source"}</span>
-					<i className="pi pi-chevron-down"></i>
-					<Ripple />
-				</div>
-			</StyleClass>
-
-			<List className="p-0 m-0 hidden overflow-y-hidden transition-all transition-duration-50 transition-ease-in-out">
-				{
-					catalogList?.map((catalog) => (
-
-						<ListItem key={catalog.name} className="itemList" style={{ padding: "0px" }}>
-							<FormControlLabel
-								className="align-items-center cursor-pointer p-0 border-round text-800 hover:surface-300 transition-duration-10 transition-colors w-full"
-								control={<Checkbox sx={{ marginLeft: 2 }}
-									name={catalog.name}
-									value={catalog.datasource}
-								/>
-								}
-								label={catalog.name}
-								disabled={catalog.state === 'OFFLINE'}
-
-							/>
-						</ListItem>
-					))
-				}
-			</List >*/}
-
 		</>
 	);
 };

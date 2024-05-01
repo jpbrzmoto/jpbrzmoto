@@ -12,6 +12,7 @@ import './MenuBar.scss';
 import { Sidebar } from 'primereact/sidebar';
 import { ThemeList } from '../ThemeList';
 import { IconButton } from '@mui/material';
+import { FormServer } from '../FormServer';
 
 export type MenuBarProps = {
 	// types...
@@ -126,7 +127,7 @@ const MenuBar: React.FC<MenuBarProps> = ({ }) => {
 				<Toast ref={toastTopCenter} position="bottom-center" />
 				<Menubar model={items} end={end} className='principal-menu w-full' />
 				<Dialog header="New Server" visible={newServerVisible} style={{ width: '50vw' }} onHide={() => setNewServerVisible(false)} footer={footerContent}>
-					{/*<FormServer></FormServer>*/}
+					<FormServer></FormServer>
 				</Dialog>
 			</div>
 		</>
