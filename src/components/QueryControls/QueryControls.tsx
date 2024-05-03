@@ -6,6 +6,7 @@ import { CatalogSelector } from '../CatalogSelector';
 import { IconButton } from '@mui/material';
 import './QueryControls.scss';
 import { useSelector } from 'react-redux';
+import { InputSwitch } from 'primereact/inputswitch';
 
 export type QueryControlsProps = {
 	// types...
@@ -13,6 +14,7 @@ export type QueryControlsProps = {
 
 const QueryControls: React.FC<QueryControlsProps> = ({ }) => {
 	const [catalogsVisible, setCatalogsVisible] = useState(false);
+	const [groupedSelected, setGroupedSelected] = useState(false);
 	const selectedTab = useSelector((state) => state.datasource.selectedTab);
 	const selectedCatalogs = useSelector((state) => state.datasource.selectedCatalogs[selectedTab]);
 
@@ -26,10 +28,21 @@ const QueryControls: React.FC<QueryControlsProps> = ({ }) => {
 
 	const start = (
 		<>
-			<Button type="button" className='p-2 m-2' label="Tenants" icon="pi pi-database"
-				outlined badge={selectedCatalogs?.length} badgeClassName="p-badge-info catalog-badge" size="small"
-				onClick={() => setCatalogsVisible(true)} />
-			<Button type="button" className='p-2 m-2' label="Execute" icon="pi pi-caret-right" size="small" />
+			<div style={{ display: 'flex', alignItems: 'center' }}>
+				<div style={{ display: 'flex', alignItems: 'center', marginRight: '1.5rem' }}>
+					<InputSwitch
+						checked={groupedSelected}
+						onChange={(e) => setGroupedSelected(e.value)}
+					/>
+					<span style={{ marginLeft: '0.5rem' }}>Grouped Execution</span>
+				</div>
+				<Button type="button" className='p-2 m-2' label="Tenants" icon="pi pi-database"
+					outlined badge={selectedCatalogs?.length} badgeClassName="p-badge-info catalog-badge" size="small"
+					onClick={() => setCatalogsVisible(true)} />
+				<Button type="button" className='p-2 m-2' label="Execute" icon="pi pi-caret-right" size="small" />
+			</div>
+
+
 		</>
 	);
 
