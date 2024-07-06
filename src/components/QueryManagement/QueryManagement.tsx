@@ -1,13 +1,13 @@
 "use client";
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import './QueryManagement.scss';
 import { TabQueryState } from '../TabQueryState';
 
 import { Box, IconButton, Tab, Tabs } from '@mui/material';
 import { AddCircleOutline } from '@mui/icons-material';
 import { useDispatch } from 'react-redux';
-import { setQuery, setSelectedIndex } from '../../redux/querySlice';
-import { setSelectedTab } from '../../redux/dataSourceSlice';
+
+import { newContextDB, setSelectedTab } from '../../redux/contextDBSlice';
 
 
 export type QueryManagementProps = {
@@ -21,21 +21,15 @@ const QueryManagement: React.FC<QueryManagementProps> = React.memo((index) => {
 
 	const handleChange = (_event: React.SyntheticEvent, newValue: number) => {
 		setValue(newValue);
-		dispatch(setSelectedIndex({ index: newValue }));
+		dispatch(setSelectedTab(newValue));
 	};
-
+ 
 	const addTab = () => {
 		setTab(tab + 1);
 		setValue(tab);
-		dispatch(setQuery({ index: tab, query: "-- sql query  -- \n" }));
-		dispatch(setSelectedIndex({ index: tab }));
+		dispatch(newContextDB(tab));		 
 	};
-
-	useEffect(() => {
-		dispatch(setSelectedTab(value));
-	}, [value]);
-
-
+ 
 	return (
 		<>
 			<Box sx={{ width: '80%', bgcolor: 'background.paper', marginTop: '-40px', marginBottom: '0px', display: 'inline-flex' }}>

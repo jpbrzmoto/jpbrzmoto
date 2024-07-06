@@ -3,32 +3,30 @@ import { Editor } from '@monaco-editor/react';
 import keywordsSql from '../../utils/keyWords/sql/keyWordSql';
 import axios from 'axios';
 import { useDispatch, useSelector } from 'react-redux';
-import { setQuery } from '../../redux/querySlice';
+import { setContextQuery } from '../../redux/contextDBSlice';
 
 const QueryEditor = () => {
 
+	const dispatch = useDispatch();
 	const editorRef = useRef<any>(null);
 	const defaultTheme = useSelector((state) => state.theme);
-	const queryList = useSelector((state) => state.query.queryList);
-	const selectedIndex = useSelector((state) => state.query.selectedIndex);
-	const previousIndex = useSelector((state) => state.query.previousIndex);
-	const [editorValue, setEditorValue] = useState(queryList[selectedIndex] || '');
-
-	const dispatch = useDispatch();
-
+	const selectedTab = useSelector((state) => state.contextdb.selectedTab);
+	const contextQuery = useSelector((state) => state.contextdb.contextDB[selectedTab]?.sql);
+	const [editorValue, setEditorValue] = useState(contextQuery || '');
+		
 	const handleEditorChange = (value) => {
 		setEditorValue(value);
+		dispatch(setContextQuery({ sql: value }));
 	};
 
 	useEffect(() => {
 		handleThemeChange(defaultTheme);
 	}, [defaultTheme]);
 
-	useEffect(() => {
-		setEditorValue(queryList[selectedIndex]);
-		dispatch(setQuery({ index: previousIndex, query: editorValue }));
-	}, [selectedIndex]);
-
+	useEffect(() => {		
+		setEditorValue(contextQuery); 		
+	}, [selectedTab]);
+  
 	const handleThemeChange = (event) => {
 		axios.get('./src/themes/' + defaultTheme.theme)
 
@@ -66,6 +64,7 @@ const QueryEditor = () => {
 	};
 
 	return (
+		
 		<Editor
 			className='overflow-auto'
 			height="100%"
@@ -83,6 +82,7 @@ const QueryEditor = () => {
 			onChange={handleEditorChange}
 			beforeMount={provideCompletionItems}
 		/>
+		
 	);
 };
 

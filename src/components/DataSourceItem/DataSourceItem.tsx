@@ -7,7 +7,9 @@ import { ContextMenu } from 'primereact/contextmenu';
 import { getDataBases, getProgrammability } from '../../services/api.services';
 import { Checkbox } from "primereact/checkbox";
 import { useDispatch, useSelector } from 'react-redux';
-import { addCatalog, removeCatalog } from '../../redux/dataSourceSlice';
+//import { addCatalog, removeCatalog } from '../../redux/dataSourceSlice';
+import { addDataBase, removeDataBase } from '../../redux/contextDBSlice';
+import { DataBase } from "./dataBase.model";
 
 
 export type DataSourceItemProps = {
@@ -20,8 +22,9 @@ const DataSourceItem: React.FC<DataSourceItemProps> = ({ dataSource }) => {
 	const [nodes, setNodes] = useState<TreeNode[]>([]);
 	const [selectedKeys, setSelectedKeys] = useState(null);
 	const [level, setLevel] = useState(0);
-	const selectedTab = useSelector((state) => state.datasource.selectedTab);
-	const selectedCatalogs = useSelector((state) => state.datasource.selectedCatalogs[selectedTab]);
+ 
+	const selectedTab = useSelector((state) => state.contextdb.selectedTab);	
+	const selectedCatalogs = useSelector((state) => state.contextdb.contextDB[selectedTab].dataBases);	
 
 	const dispatch = useDispatch();
 
@@ -140,11 +143,13 @@ const DataSourceItem: React.FC<DataSourceItemProps> = ({ dataSource }) => {
 
 		setLoading(false);
 	}
-	const setChecked = (e) => {
+	const setDataBaseChecked = (e) => {
+		const dataBaseSelected: DataBase = { id:0, name:e.value, dataSource:"IDRAARHPDBE001"};		
+		
 		if (e.checked)
-			dispatch(addCatalog({ catalog: e.value }));
+			dispatch(addDataBase({ database: dataBaseSelected}));			
 		else
-			dispatch(removeCatalog({ catalog: e.value }));
+			dispatch(removeDataBase({ database: dataBaseSelected }));
 	}
 
 	const nodeTemplate = (node) => {
@@ -153,8 +158,8 @@ const DataSourceItem: React.FC<DataSourceItemProps> = ({ dataSource }) => {
 			case 0: {
 				return (
 					<div className='item-db'>
-						<Checkbox onChange={e => setChecked(e)} value={node.label}
-							checked={selectedCatalogs?.some((catalog) => catalog === node.label)}
+						<Checkbox onChange={e => setDataBaseChecked(e)} value={node.label}
+							checked={selectedCatalogs?.some((database:DataBase) => database.name === node.label)}
 						></Checkbox>
 						<label className="">{node.label}</label>
 					</div>

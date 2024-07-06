@@ -2,23 +2,26 @@
 import { useEffect, useState } from "react";
 import { MultiSelect, MultiSelectChangeEvent } from 'primereact/multiselect';
 import { useDispatch, useSelector } from "react-redux";
-import { setDataSources } from "../../redux/dataSourceSlice";
-
-const servers: Server[] = [
-	{ name: 'IDRAARHPDBE001', type: 'DEV' },
-	{ name: 'ITRAARHPDBE001', type: 'TEST' },
-	{ name: 'IDRAARHPDB004', type: 'PROD' }
+import { DataSource } from "../../models/dataSource.model";
+import { addDataSources } from "../../redux/contextDBSlice";
+ 
+const dataSources: DataSource[] = [
+	{ id:0, name: 'IDRAARHPDBE001', type: 'DEV' },
+	{ id:1, name: 'ITRAARHPDBE001', type: 'TEST' },
+	{ id:2, name: 'IDRAARHPDB004', type: 'PROD' }
 ];
 
 export default function ServerSelector({ selectButtonPressed }) {
-	const selectedTab = useSelector((state) => state.datasource.selectedTab);
-	const dataSourceList = useSelector((state) => state.datasource?.selectedDataSources[selectedTab]);
-	const [selectedServers, setSelectedServers] = useState<Server[] | null>(dataSourceList);
+ 
+	const selectedTab = useSelector((state) => state.contextdb.selectedTab);
+	const dataSourceList = useSelector((state) => state.contextdb.contextDB[selectedTab].dataSources);
+
+	const [selectedServers, setSelectedServers] = useState<DataSource[]>(dataSourceList);
 	const dispatch = useDispatch();
 
 	useEffect(() => {
-		if (selectButtonPressed) {
-			dispatch(setDataSources(selectedServers));
+		if (selectButtonPressed) {			
+			dispatch(addDataSources({datasources:selectedServers}));
 		}
 	}, [selectButtonPressed]);
 
@@ -31,7 +34,7 @@ export default function ServerSelector({ selectButtonPressed }) {
 			<MultiSelect
 				value={selectedServers}
 				onChange={handleServerSelect}
-				options={servers}
+				options={dataSources}
 				optionLabel="name"
 				filter
 				placeholder="Select Servers"

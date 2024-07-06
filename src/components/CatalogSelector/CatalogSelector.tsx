@@ -16,13 +16,24 @@ export type CatalogSelectorProps = {
 const CatalogSelector: React.FC<CatalogSelectorProps> = () => {
 	const [serversVisible, setServersVisible] = useState(false);
 	const [selectButtonPressed, setSelectButtonPressed] = useState(false);
-	const selectedTab = useSelector((state) => state.datasource.selectedTab);
-	const selectedDataSources = useSelector((state) => state.datasource?.selectedDataSources[selectedTab]);
+	
+	const selectedTab = useSelector((state) => state.contextdb.selectedTab);	
+	const selectedDataSources = useSelector((state) => state.contextdb.contextDB[selectedTab].dataSources);	
+	
 	const [dataSourceList, setDataSourceList] = useState(selectedDataSources);
+
+
+	useEffect(() => {		
+		if (selectedDataSources?.length<1){
+			setSelectButtonPressed(false);
+			setServersVisible(true);
+		}
+	},[]);
 
 	useEffect(() => {
 		setDataSourceList(selectedDataSources);
 	}, [selectedDataSources]);
+
 
 
 	const items: MenuItem[] = [

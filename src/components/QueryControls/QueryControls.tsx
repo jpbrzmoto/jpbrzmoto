@@ -5,16 +5,26 @@ import { Sidebar } from 'primereact/sidebar';
 import { CatalogSelector } from '../CatalogSelector';
 import { IconButton } from '@mui/material';
 import './QueryControls.scss';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
+import { InputSwitch } from 'primereact/inputswitch';
+import { postQuery } from '../../services/api.services';
+import { QueryModel } from '../../models/query.model';
+import { DataBase } from '../../models/dataBase.model';
+import { addContextResult, cleanContextResult } from '../../redux/contextDBSlice';
+
 
 export type QueryControlsProps = {
 	// types...
 }
 
 const QueryControls: React.FC<QueryControlsProps> = ({ }) => {
-	const [catalogsVisible, setCatalogsVisible] = useState(false);
-	const selectedTab = useSelector((state) => state.datasource.selectedTab);
-	const selectedCatalogs = useSelector((state) => state.datasource.selectedCatalogs[selectedTab]);
+	const dispatch = useDispatch();
+	const [databasesVisible, setCatalogsVisible] = useState(false);
+	const [groupedSelected, setGroupedSelected] = useState(false);
+
+	const selectedTab = useSelector((state) => state.contextdb.selectedTab);	
+	const selectedQuery = useSelector((state) => state.contextdb.contextDB[selectedTab].sql);	
+	const selectedDataBases = useSelector((state) => state.contextdb.contextDB[selectedTab].dataBases);	
 
 	const [favorite, setFavorite] = useState(false);
 	const handleFavorite = () => {
@@ -23,13 +33,33 @@ const QueryControls: React.FC<QueryControlsProps> = ({ }) => {
 	const saveQuery = () => {
 		alert("guardado");
 	};
+	const executeQuery = async () => {
+		dispatch(cleanContextResult());
+		selectedDataBases.forEach(async (database: DataBase) => {
+			const model : QueryModel =  { query:selectedQuery, catalog:database.name, source:database.dataSource }
+			const result = await postQuery(model);	
+			dispatch(addContextResult({ result: result }));			
+		});		
+	};
 
 	const start = (
 		<>
-			<Button type="button" className='p-2 m-2' label="Tenants" icon="pi pi-database"
-				outlined badge={selectedCatalogs?.length} badgeClassName="p-badge-info catalog-badge" size="small"
-				onClick={() => setCatalogsVisible(true)} />
-			<Button type="button" className='p-2 m-2' label="Execute" icon="pi pi-caret-right" size="small" />
+			<div style={{ display: 'flex', alignItems: 'center' }}>
+				<div style={{ display: 'flex', alignItems: 'center', marginRight: '1.5rem' }}>
+					<InputSwitch
+						checked={groupedSelected}
+						onChange={(e) => setGroupedSelected(e.value)}
+					/>
+					<span style={{ marginLeft: '0.5rem' }}>Grouped Execution</span>
+				</div>
+				<Button type="button" className='p-2 m-2' label="Tenants" icon="pi pi-database"
+					outlined badge={selectedDataBases?.length} badgeClassName="p-badge-info catalog-badge" size="small"
+					onClick={() => setCatalogsVisible(true)} />
+				<Button type="button" className='p-2 m-2' label="Execute" icon="pi pi-caret-right" size="small" 
+					onClick={() => executeQuery()}/>
+			</div>
+
+
 		</>
 	);
 
@@ -49,7 +79,7 @@ const QueryControls: React.FC<QueryControlsProps> = ({ }) => {
 			<div className="card flex justify-content-center">
 				<Sidebar
 					className='w-full md:w-20rem lg:w-30rem custom-datasource-sidebar'
-					visible={catalogsVisible}
+					visible={databasesVisible}
 					onHide={() => setCatalogsVisible(false)}
 					content={
 						<CatalogSelector></CatalogSelector>
