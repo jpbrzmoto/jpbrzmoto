@@ -17,7 +17,7 @@ export type QueryControlsProps = {
 	// types...
 }
 
-const QueryControls: React.FC<QueryControlsProps> = ({ }) => {
+const QueryControls: React.FC<QueryControlsProps> = React.memo(({ }) => {
 	const dispatch = useDispatch();
 	const [databasesVisible, setCatalogsVisible] = useState(false);
 	const [groupedSelected, setGroupedSelected] = useState(false);
@@ -37,7 +37,9 @@ const QueryControls: React.FC<QueryControlsProps> = ({ }) => {
 		dispatch(cleanContextResult());
 		selectedDataBases.forEach(async (database: DataBase) => {
 			const model : QueryModel =  { query:selectedQuery, catalog:database.name, source:database.dataSource }
-			const result = await postQuery(model);	
+			const result = await postQuery(model);				
+			result.dataBase = database.name;
+			result.dataSource = database.dataSource;
 			dispatch(addContextResult({ result: result }));			
 		});		
 	};
@@ -55,7 +57,7 @@ const QueryControls: React.FC<QueryControlsProps> = ({ }) => {
 				<Button type="button" className='p-2 m-2' label="Tenants" icon="pi pi-database"
 					outlined badge={selectedDataBases?.length} badgeClassName="p-badge-info catalog-badge" size="small"
 					onClick={() => setCatalogsVisible(true)} />
-				<Button type="button" className='p-2 m-2' label="Execute" icon="pi pi-caret-right" size="small" 
+				<Button type="button" disabled={selectedDataBases?.length<1} className='p-2 m-2' label="Execute" icon="pi pi-caret-right" size="small" 
 					onClick={() => executeQuery()}/>
 			</div>
 
@@ -92,6 +94,6 @@ const QueryControls: React.FC<QueryControlsProps> = ({ }) => {
 			<Menubar className='p-1' start={start} end={end} />
 		</>
 	);
-};
+});
 
 export default QueryControls;

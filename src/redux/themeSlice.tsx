@@ -1,7 +1,8 @@
 import { createSlice } from "@reduxjs/toolkit";
 
 const initialState = {
-    theme: "GitHub.json"
+    defaultTheme: "Cobalt2.json",
+    theme: ""
 }
 
 export const themeSlice = createSlice(
@@ -9,11 +10,8 @@ export const themeSlice = createSlice(
         name: "theme",
         initialState,
         reducers: {
-            configureTheme: (state, action) => {
-                /*const { theme } = action.payload;
-                state = theme;*/
+            configureTheme: (state, action) => {                
                 state.theme = action.payload;
-
             }
         }
     }

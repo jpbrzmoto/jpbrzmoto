@@ -16,7 +16,7 @@ export type DataSourceItemProps = {
 	dataSource: string
 }
 
-const DataSourceItem: React.FC<DataSourceItemProps> = ({ dataSource }) => {
+const DataSourceItem: React.FC<DataSourceItemProps> =  React.memo(({ dataSource }) => {
 	const cm = useRef(null);
 	const [loading, setLoading] = useState<boolean>(false);
 	const [nodes, setNodes] = useState<TreeNode[]>([]);
@@ -59,14 +59,14 @@ const DataSourceItem: React.FC<DataSourceItemProps> = ({ dataSource }) => {
 
 	const loadOnExpand = async (event) => {
 
-		if (!event.node.children && !event.node.leaf && !event.node.isAction) {
+		if (!event.node.children && !event.node.leaf && !event.node.isAction) {			
 			setLevel(level + 1);
 			setLoading(true);
 			const allDevDataBases = await getDataBases(dataSource);
 			const newChildren = allDevDataBases.map(database => ({
 				key: `${database.name}`,
 				label: database.name,
-				data: database.name,
+				data: event.node.label,
 				leaf: false,
 				isAction: true,
 				type: "DataBase",
@@ -143,8 +143,8 @@ const DataSourceItem: React.FC<DataSourceItemProps> = ({ dataSource }) => {
 
 		setLoading(false);
 	}
-	const setDataBaseChecked = (e) => {
-		const dataBaseSelected: DataBase = { id:0, name:e.value, dataSource:"IDRAARHPDBE001"};		
+	const setDataBaseChecked = (e, node) => {				
+		const dataBaseSelected: DataBase = { id:0, name:e.value, dataSource: node.data};		
 		
 		if (e.checked)
 			dispatch(addDataBase({ database: dataBaseSelected}));			
@@ -153,12 +153,11 @@ const DataSourceItem: React.FC<DataSourceItemProps> = ({ dataSource }) => {
 	}
 
 	const nodeTemplate = (node) => {
-
 		switch (node.level) {
 			case 0: {
 				return (
 					<div className='item-db'>
-						<Checkbox onChange={e => setDataBaseChecked(e)} value={node.label}
+						<Checkbox onChange={e => setDataBaseChecked(e, node)} value={node.label} 
 							checked={selectedCatalogs?.some((database:DataBase) => database.name === node.label)}
 						></Checkbox>
 						<label className="">{node.label}</label>
@@ -189,7 +188,7 @@ const DataSourceItem: React.FC<DataSourceItemProps> = ({ dataSource }) => {
 			/>
 		</>
 	);
-};
+});
 
 export default DataSourceItem;
 

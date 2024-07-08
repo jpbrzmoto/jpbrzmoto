@@ -50,9 +50,7 @@ export const contextDBSlice = createSlice(
                 }                
             },
             addDataBase: (state, action) => {
-                const { database } = action.payload;
-                console.log("base:", database);
-                
+                const { database } = action.payload;                
                 if (state.contextDB[state.selectedTab]) {
                     state.contextDB[state.selectedTab].dataBases.push(database);
                 }                

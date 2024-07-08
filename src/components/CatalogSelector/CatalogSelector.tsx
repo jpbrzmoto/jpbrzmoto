@@ -13,7 +13,7 @@ export type CatalogSelectorProps = {
 	// types...
 }
 
-const CatalogSelector: React.FC<CatalogSelectorProps> = () => {
+const CatalogSelector: React.FC<CatalogSelectorProps> = React.memo(() => {
 	const [serversVisible, setServersVisible] = useState(false);
 	const [selectButtonPressed, setSelectButtonPressed] = useState(false);
 	
@@ -83,6 +83,6 @@ const CatalogSelector: React.FC<CatalogSelectorProps> = () => {
 			))}
 		</>
 	);
-};
+});
 
 export default CatalogSelector;
